@@ -7,123 +7,58 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --cream: #f7f3ee;
-      --warm: #e8ddd0;
-      --clay: #b5856a;
-      --ink: #1c1712;
-      --muted: #8a7968;
-      --gold: #c9a96e;
-      --success: #5a8a6a;
-      --error: #a05050;
+      --cream: #f7f3ee; --warm: #e8ddd0; --clay: #b5856a;
+      --ink: #1c1712; --muted: #8a7968; --success: #5a8a6a; --error: #a05050;
     }
-
     html, body { height: 100%; background: var(--cream); color: var(--ink); font-family: 'DM Sans', sans-serif; font-weight: 300; }
 
-    header {
-      text-align: center;
-      padding: 2.2rem 1rem 1.2rem;
-      border-bottom: 1px solid var(--warm);
-      background: var(--cream);
-      position: sticky; top: 0; z-index: 10;
-    }
+    header { text-align: center; padding: 2.2rem 1rem 1.2rem; border-bottom: 1px solid var(--warm); background: var(--cream); position: sticky; top: 0; z-index: 10; }
     header h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(2rem, 6vw, 2.8rem); font-weight: 300; letter-spacing: 0.18em; }
     header h1 em { font-style: italic; color: var(--clay); }
     header p { margin-top: 0.3rem; font-size: 0.72rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); }
 
-    /* API KEY */
-    #api-banner {
-      background: #fdf8f4;
-      border-bottom: 1px solid var(--warm);
-      padding: 0.7rem 1.25rem;
-      display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;
-    }
+    #api-banner { background: #fdf8f4; border-bottom: 1px solid var(--warm); padding: 0.7rem 1.25rem; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
     #api-banner label { font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
-    #api-key-input {
-      flex: 1; min-width: 180px;
-      border: 1px solid var(--warm); border-radius: 6px;
-      padding: 0.42rem 0.75rem; font-size: 0.82rem;
-      font-family: 'DM Sans', sans-serif; background: white; color: var(--ink);
-      outline: none; transition: border-color 0.2s;
-    }
+    #api-key-input { flex: 1; min-width: 180px; border: 1px solid var(--warm); border-radius: 6px; padding: 0.42rem 0.75rem; font-size: 0.82rem; font-family: 'DM Sans', sans-serif; background: white; color: var(--ink); outline: none; transition: border-color 0.2s; }
     #api-key-input:focus { border-color: var(--clay); }
-    #save-key-btn {
-      background: var(--clay); color: white; border: none; border-radius: 6px;
-      padding: 0.42rem 1rem; font-size: 0.74rem; letter-spacing: 0.1em;
-      text-transform: uppercase; cursor: pointer; transition: background 0.2s; white-space: nowrap;
-    }
+    #save-key-btn { background: var(--clay); color: white; border: none; border-radius: 6px; padding: 0.42rem 1rem; font-size: 0.74rem; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
     #save-key-btn:hover { background: var(--ink); }
     #key-status { font-size: 0.74rem; color: var(--success); }
+    .get-key-link { font-size: 0.72rem; color: var(--clay); text-decoration: none; white-space: nowrap; }
+    .get-key-link:hover { text-decoration: underline; }
 
-    /* MAIN */
     main { max-width: 860px; margin: 0 auto; padding: 1.8rem 1rem 4rem; }
 
-    /* UPLOAD GRID */
     .upload-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.75rem; }
     @media (max-width: 500px) { .upload-grid { grid-template-columns: 1fr; } }
 
-    .upload-panel {
-      background: white;
-      border: 1.5px dashed var(--warm);
-      border-radius: 16px; overflow: hidden;
-      transition: border-color 0.2s, box-shadow 0.2s;
-      cursor: pointer; position: relative;
-    }
+    .upload-panel { background: white; border: 1.5px dashed var(--warm); border-radius: 16px; overflow: hidden; transition: border-color 0.2s, box-shadow 0.2s; cursor: pointer; position: relative; }
     .upload-panel:hover { border-color: var(--clay); box-shadow: 0 4px 24px rgba(181,133,106,0.1); }
     .upload-panel.drag-over { border-color: var(--clay); background: #fdf3ec; }
     .upload-panel input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; z-index: 2; }
-
-    .panel-inner {
-      min-height: 210px; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; gap: 0.55rem;
-      padding: 1.5rem; text-align: center;
-    }
-    .panel-icon {
-      width: 46px; height: 46px; border-radius: 50%;
-      background: var(--cream); display: flex; align-items: center; justify-content: center;
-    }
+    .panel-inner { min-height: 210px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.55rem; padding: 1.5rem; text-align: center; }
+    .panel-icon { width: 46px; height: 46px; border-radius: 50%; background: var(--cream); display: flex; align-items: center; justify-content: center; }
     .panel-icon svg { color: var(--clay); }
     .panel-label { font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; color: var(--ink); }
     .panel-sub { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
-
     .preview-img { width: 100%; min-height: 210px; object-fit: cover; display: block; }
-    .panel-change {
-      position: absolute; bottom: 10px; right: 10px; z-index: 3;
-      background: rgba(28,23,18,0.68); color: white; border: none;
-      border-radius: 20px; padding: 0.28rem 0.75rem;
-      font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase;
-      cursor: pointer; backdrop-filter: blur(4px);
-    }
+    .panel-change { position: absolute; bottom: 10px; right: 10px; z-index: 3; background: rgba(28,23,18,0.68); color: white; border: none; border-radius: 20px; padding: 0.28rem 0.75rem; font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; backdrop-filter: blur(4px); }
 
-    /* CATEGORY */
     .category-row { margin-bottom: 1.75rem; text-align: center; }
     .category-row label { font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 0.65rem; }
     .cat-pills { display: inline-flex; gap: 0.4rem; background: white; border: 1px solid var(--warm); border-radius: 30px; padding: 0.28rem; }
     .cat-pill { padding: 0.38rem 1.1rem; border-radius: 25px; font-size: 0.76rem; letter-spacing: 0.07em; border: none; background: transparent; color: var(--muted); cursor: pointer; transition: all 0.2s; }
     .cat-pill.active { background: var(--clay); color: white; }
 
-    /* GENERATE */
     .generate-wrap { text-align: center; margin-bottom: 2rem; }
-    #generate-btn {
-      background: var(--ink); color: var(--cream); border: none;
-      border-radius: 50px; padding: 1rem 3rem;
-      font-family: 'Cormorant Garamond', serif; font-size: 1.25rem;
-      font-weight: 400; letter-spacing: 0.1em; cursor: pointer;
-      transition: all 0.25s;
-    }
+    #generate-btn { background: var(--ink); color: var(--cream); border: none; border-radius: 50px; padding: 1rem 3rem; font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; font-weight: 400; letter-spacing: 0.1em; cursor: pointer; transition: all 0.25s; }
     #generate-btn:hover:not(:disabled) { background: var(--clay); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(181,133,106,0.28); }
     #generate-btn:disabled { opacity: 0.45; cursor: not-allowed; }
     #generate-btn .btn-hint { display: block; font-family: 'DM Sans', sans-serif; font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase; margin-top: 0.15rem; opacity: 0.65; }
 
-    /* ERROR */
-    #error-box {
-      display: none; background: #fff5f5; border: 1px solid #f5c6c6;
-      border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.5rem;
-      font-size: 0.84rem; color: var(--error); line-height: 1.55;
-    }
+    #error-box { display: none; background: #fff5f5; border: 1px solid #f5c6c6; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; font-size: 0.84rem; color: var(--error); line-height: 1.55; }
 
-    /* PROGRESS */
     #progress-section { display: none; text-align: center; margin-bottom: 2rem; }
     .spinner { width: 52px; height: 52px; border: 3px solid var(--warm); border-top-color: var(--clay); border-radius: 50%; animation: spin 0.85s linear infinite; margin: 0 auto 1rem; }
     @keyframes spin { to { transform: rotate(360deg); } }
@@ -131,7 +66,6 @@
     #progress-dots::after { content: ''; animation: dots 1.5s steps(4,end) infinite; }
     @keyframes dots { 0%{content:''} 25%{content:'.'} 50%{content:'..'} 75%{content:'...'} }
 
-    /* RESULT */
     #result-section { display: none; animation: fadeIn 0.5s ease; }
     .result-header { text-align: center; margin-bottom: 1.1rem; }
     .result-header h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 300; }
@@ -139,17 +73,12 @@
     .result-card { background: white; border-radius: 18px; overflow: hidden; box-shadow: 0 8px 40px rgba(28,23,18,0.08); margin-bottom: 1.2rem; }
     #result-img { width: 100%; max-height: 580px; object-fit: contain; display: block; background: var(--cream); }
     .result-actions { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
-    .action-btn {
-      padding: 0.62rem 1.5rem; border-radius: 30px; font-size: 0.75rem;
-      letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer;
-      transition: all 0.2s; border: 1.5px solid; text-decoration: none; display: inline-block;
-    }
+    .action-btn { padding: 0.62rem 1.5rem; border-radius: 30px; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; border: 1.5px solid; text-decoration: none; display: inline-block; }
     .action-btn.primary { background: var(--ink); border-color: var(--ink); color: white; }
     .action-btn.primary:hover { background: var(--clay); border-color: var(--clay); }
     .action-btn.secondary { background: transparent; border-color: var(--warm); color: var(--muted); }
     .action-btn.secondary:hover { border-color: var(--clay); color: var(--clay); }
 
-    /* INSTRUCTIONS */
     .instructions { margin-top: 2.5rem; border-top: 1px solid var(--warm); padding-top: 2rem; }
     .instructions h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 400; color: var(--muted); margin-bottom: 1rem; }
     .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1rem; }
@@ -158,12 +87,7 @@
     .step p { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
     .step p strong { color: var(--ink); font-weight: 500; }
 
-    /* GET KEY LINK */
-    .get-key-link { font-size: 0.72rem; color: var(--clay); text-decoration: none; white-space: nowrap; }
-    .get-key-link:hover { text-decoration: underline; }
-
     @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-
     footer { text-align: center; padding: 2rem; font-size: 0.68rem; color: var(--warm); letter-spacing: 0.1em; }
   </style>
 </head>
@@ -184,7 +108,6 @@
 
 <main>
   <div class="upload-grid">
-
     <div class="upload-panel" id="person-panel">
       <input type="file" id="person-input" accept="image/jpeg,image/png,image/webp" />
       <div class="panel-inner" id="person-placeholder">
@@ -214,7 +137,6 @@
       <img id="shawl-preview" class="preview-img" style="display:none" alt="Shawl photo" />
       <button class="panel-change" id="shawl-change" style="display:none" onclick="document.getElementById('shawl-input').click()">Change</button>
     </div>
-
   </div>
 
   <div class="category-row">
@@ -256,22 +178,10 @@
   <div class="instructions">
     <h3>How to use</h3>
     <div class="steps">
-      <div class="step">
-        <div class="step-num">01</div>
-        <p>Paste your <strong>Replicate API key</strong> above. Free at replicate.com</p>
-      </div>
-      <div class="step">
-        <div class="step-num">02</div>
-        <p>Upload a clear <strong>photo of yourself</strong> — full body or upper body works best</p>
-      </div>
-      <div class="step">
-        <div class="step-num">03</div>
-        <p>Upload a <strong>flat-lay or product photo</strong> of the shawl or stole</p>
-      </div>
-      <div class="step">
-        <div class="step-num">04</div>
-        <p>Tap <strong>Try It On</strong> and wait about 25 seconds for your result</p>
-      </div>
+      <div class="step"><div class="step-num">01</div><p>Paste your <strong>Replicate API key</strong> above and tap Save</p></div>
+      <div class="step"><div class="step-num">02</div><p>Upload a clear <strong>photo of yourself</strong> — full or upper body</p></div>
+      <div class="step"><div class="step-num">03</div><p>Upload a <strong>flat-lay or product photo</strong> of the shawl or stole</p></div>
+      <div class="step"><div class="step-num">04</div><p>Tap <strong>Try It On</strong> and wait about 25 seconds</p></div>
     </div>
   </div>
 </main>
@@ -279,15 +189,13 @@
 <footer>DRAPE &nbsp;·&nbsp; PERSONAL USE &nbsp;·&nbsp; POWERED BY IDM-VTON ON REPLICATE</footer>
 
 <script>
-  // ─── STATE ───────────────────────────────────────────────
   let apiKey = localStorage.getItem('drape_api_key') || '';
   let personFile = null, shawlFile = null;
   let category = 'upper_body';
 
-  // ─── API KEY ──────────────────────────────────────────────
+  // ── API KEY ──
   const apiInput  = document.getElementById('api-key-input');
   const keyStatus = document.getElementById('key-status');
-
   if (apiKey) { apiInput.value = apiKey; keyStatus.textContent = '✓ Key saved'; }
 
   document.getElementById('save-key-btn').addEventListener('click', () => {
@@ -302,7 +210,7 @@
     checkReady();
   });
 
-  // ─── FILE UPLOAD HELPER ───────────────────────────────────
+  // ── FILE UPLOADS ──
   function setupUpload(inputId, previewId, placeholderId, changeId, setter) {
     const input       = document.getElementById(inputId);
     const preview     = document.getElementById(previewId);
@@ -312,8 +220,7 @@
     function loadFile(file) {
       if (!file) return;
       setter(file);
-      const url = URL.createObjectURL(file);
-      preview.src = url;
+      preview.src = URL.createObjectURL(file);
       preview.style.display = 'block';
       placeholder.style.display = 'none';
       changeBtn.style.display = 'block';
@@ -322,7 +229,6 @@
 
     input.addEventListener('change', e => loadFile(e.target.files[0]));
 
-    // Drag & drop
     const panel = input.closest('.upload-panel');
     panel.addEventListener('dragover', e => { e.preventDefault(); panel.classList.add('drag-over'); });
     panel.addEventListener('dragleave', () => panel.classList.remove('drag-over'));
@@ -336,7 +242,7 @@
   setupUpload('person-input', 'person-preview', 'person-placeholder', 'person-change', f => personFile = f);
   setupUpload('shawl-input',  'shawl-preview',  'shawl-placeholder',  'shawl-change',  f => shawlFile = f);
 
-  // ─── CATEGORY PILLS ───────────────────────────────────────
+  // ── CATEGORY ──
   document.querySelectorAll('.cat-pill').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.cat-pill').forEach(b => b.classList.remove('active'));
@@ -345,17 +251,14 @@
     });
   });
 
-  // ─── READY CHECK ─────────────────────────────────────────
   function checkReady() {
-    const btn = document.getElementById('generate-btn');
-    btn.disabled = !(apiKey && personFile && shawlFile);
+    document.getElementById('generate-btn').disabled = !(apiKey && personFile && shawlFile);
   }
 
-  // ─── HELPERS ─────────────────────────────────────────────
   function toBase64(file) {
     return new Promise((res, rej) => {
       const r = new FileReader();
-      r.onload = () => res(r.result); // data URL
+      r.onload = () => res(r.result);
       r.onerror = rej;
       r.readAsDataURL(file);
     });
@@ -363,43 +266,32 @@
 
   function showError(msg) {
     const box = document.getElementById('error-box');
-    box.textContent = msg;
-    box.style.display = 'block';
+    box.textContent = msg; box.style.display = 'block';
   }
-
-  function hideError() {
-    document.getElementById('error-box').style.display = 'none';
-  }
-
-  function setProgress(show) {
-    document.getElementById('progress-section').style.display = show ? 'block' : 'none';
-  }
+  function hideError() { document.getElementById('error-box').style.display = 'none'; }
+  function setProgress(show) { document.getElementById('progress-section').style.display = show ? 'block' : 'none'; }
 
   function showResult(url) {
-    const section = document.getElementById('result-section');
-    const img     = document.getElementById('result-img');
-    const dl      = document.getElementById('download-btn');
-    img.src = url;
-    dl.href = url;
-    section.style.display = 'block';
-    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const img = document.getElementById('result-img');
+    const dl  = document.getElementById('download-btn');
+    img.src = url; dl.href = url;
+    document.getElementById('result-section').style.display = 'block';
+    document.getElementById('result-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  // ─── POLLING ─────────────────────────────────────────────
-  async function pollPrediction(predictionId) {
-    const maxAttempts = 60; // 60 × 3s = 3 min max
-    for (let i = 0; i < maxAttempts; i++) {
+  // ── PROXY URL — calls /api/proxy instead of Replicate directly ──
+  const PROXY = '/api/proxy';
+
+  async function pollPrediction(id) {
+    for (let i = 0; i < 60; i++) {
       await new Promise(r => setTimeout(r, 3000));
-      const res = await fetch(`https://api.replicate.com/v1/predictions/${predictionId}`, {
-        headers: { 'Authorization': `Bearer ${apiKey}` }
+      const res = await fetch(`${PROXY}?path=${id}`, {
+        headers: { 'x-replicate-key': apiKey }
       });
       if (!res.ok) throw new Error(`Polling error ${res.status}`);
       const data = await res.json();
-
       if (data.status === 'succeeded') {
-        // Output can be a string or array
-        const output = Array.isArray(data.output) ? data.output[0] : data.output;
-        return output;
+        return Array.isArray(data.output) ? data.output[0] : data.output;
       }
       if (data.status === 'failed' || data.status === 'canceled') {
         throw new Error(data.error || 'Prediction failed. Try a clearer photo.');
@@ -408,10 +300,9 @@
     throw new Error('Timed out. Please try again.');
   }
 
-  // ─── GENERATE ────────────────────────────────────────────
+  // ── GENERATE ──
   document.getElementById('generate-btn').addEventListener('click', async () => {
     if (!apiKey || !personFile || !shawlFile) return;
-
     hideError();
     setProgress(true);
     document.getElementById('result-section').style.display = 'none';
@@ -420,13 +311,11 @@
     try {
       const [personB64, shawlB64] = await Promise.all([toBase64(personFile), toBase64(shawlFile)]);
 
-      // Create prediction using IDM-VTON on Replicate
-      const res = await fetch('https://api.replicate.com/v1/predictions', {
+      const res = await fetch(PROXY, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json',
-          'Prefer': 'wait'
+          'x-replicate-key': apiKey
         },
         body: JSON.stringify({
           version: "c871bb9b046607b680449ecbae55fd8c6d945e0a1948644bf2361b3d021d3ff4",
@@ -445,19 +334,17 @@
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        if (res.status === 401) throw new Error('Invalid API key. Please check and save your Replicate API key.');
-        throw new Error(err.detail || `API error ${res.status}`);
+        if (res.status === 401) throw new Error('Invalid API key. Please check your Replicate key.');
+        throw new Error(err.detail || err.error || `API error ${res.status}`);
       }
 
       const prediction = await res.json();
 
-      // If already done (sync response with Prefer: wait)
       if (prediction.status === 'succeeded') {
         const output = Array.isArray(prediction.output) ? prediction.output[0] : prediction.output;
         setProgress(false);
         showResult(output);
       } else {
-        // Poll for result
         const outputUrl = await pollPrediction(prediction.id);
         setProgress(false);
         showResult(outputUrl);
@@ -467,11 +354,10 @@
       setProgress(false);
       showError('⚠ ' + err.message);
     } finally {
-      checkReady(); // re-enable button
+      checkReady();
     }
   });
 
-  // ─── TRY AGAIN ───────────────────────────────────────────
   document.getElementById('try-again-btn').addEventListener('click', () => {
     document.getElementById('result-section').style.display = 'none';
     window.scrollTo({ top: 0, behavior: 'smooth' });
