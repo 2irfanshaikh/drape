@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Drape — Virtual Shawl Try-On</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #f7f3ee;
+      --warm: #e8ddd0;
+      --clay: #b5856a;
+      --ink: #1c1712;
+      --muted: #8a7968;
+      --gold: #c9a96e;
+      --success: #5a8a6a;
+      --error: #a05050;
+    }
+
+    html, body { height: 100%; background: var(--cream); color: var(--ink); font-family: 'DM Sans', sans-serif; font-weight: 300; }
+
+    header {
+      text-align: center;
+      padding: 2.2rem 1rem 1.2rem;
+      border-bottom: 1px solid var(--warm);
+      background: var(--cream);
+      position: sticky; top: 0; z-index: 10;
+    }
+    header h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(2rem, 6vw, 2.8rem); font-weight: 300; letter-spacing: 0.18em; }
+    header h1 em { font-style: italic; color: var(--clay); }
+    header p { margin-top: 0.3rem; font-size: 0.72rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); }
+
+    /* API KEY */
+    #api-banner {
+      background: #fdf8f4;
+      border-bottom: 1px solid var(--warm);
+      padding: 0.7rem 1.25rem;
+      display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;
+    }
+    #api-banner label { font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+    #api-key-input {
+      flex: 1; min-width: 180px;
+      border: 1px solid var(--warm); border-radius: 6px;
+      padding: 0.42rem 0.75rem; font-size: 0.82rem;
+      font-family: 'DM Sans', sans-serif; background: white; color: var(--ink);
+      outline: none; transition: border-color 0.2s;
+    }
+    #api-key-input:focus { border-color: var(--clay); }
+    #save-key-btn {
+      background: var(--clay); color: white; border: none; border-radius: 6px;
+      padding: 0.42rem 1rem; font-size: 0.74rem; letter-spacing: 0.1em;
+      text-transform: uppercase; cursor: pointer; transition: background 0.2s; white-space: nowrap;
+    }
+    #save-key-btn:hover { background: var(--ink); }
+    #key-status { font-size: 0.74rem; color: var(--success); }
+
+    /* MAIN */
+    main { max-width: 860px; margin: 0 auto; padding: 1.8rem 1rem 4rem; }
+
+    /* UPLOAD GRID */
+    .upload-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.75rem; }
+    @media (max-width: 500px) { .upload-grid { grid-template-columns: 1fr; } }
+
+    .upload-panel {
+      background: white;
+      border: 1.5px dashed var(--warm);
+      border-radius: 16px; overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      cursor: pointer; position: relative;
+    }
+    .upload-panel:hover { border-color: var(--clay); box-shadow: 0 4px 24px rgba(181,133,106,0.1); }
+    .upload-panel.drag-over { border-color: var(--clay); background: #fdf3ec; }
+    .upload-panel input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; z-index: 2; }
+
+    .panel-inner {
+      min-height: 210px; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 0.55rem;
+      padding: 1.5rem; text-align: center;
+    }
+    .panel-icon {
+      width: 46px; height: 46px; border-radius: 50%;
+      background: var(--cream); display: flex; align-items: center; justify-content: center;
+    }
+    .panel-icon svg { color: var(--clay); }
+    .panel-label { font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; color: var(--ink); }
+    .panel-sub { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+
+    .preview-img { width: 100%; min-height: 210px; object-fit: cover; display: block; }
+    .panel-change {
+      position: absolute; bottom: 10px; right: 10px; z-index: 3;
+      background: rgba(28,23,18,0.68); color: white; border: none;
+      border-radius: 20px; padding: 0.28rem 0.75rem;
+      font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase;
+      cursor: pointer; backdrop-filter: blur(4px);
+    }
+
+    /* CATEGORY */
+    .category-row { margin-bottom: 1.75rem; text-align: center; }
+    .category-row label { font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 0.65rem; }
+    .cat-pills { display: inline-flex; gap: 0.4rem; background: white; border: 1px solid var(--warm); border-radius: 30px; padding: 0.28rem; }
+    .cat-pill { padding: 0.38rem 1.1rem; border-radius: 25px; font-size: 0.76rem; letter-spacing: 0.07em; border: none; background: transparent; color: var(--muted); cursor: pointer; transition: all 0.2s; }
+    .cat-pill.active { background: var(--clay); color: white; }
+
+    /* GENERATE */
+    .generate-wrap { text-align: center; margin-bottom: 2rem; }
+    #generate-btn {
+      background: var(--ink); color: var(--cream); border: none;
+      border-radius: 50px; padding: 1rem 3rem;
+      font-family: 'Cormorant Garamond', serif; font-size: 1.25rem;
+      font-weight: 400; letter-spacing: 0.1em; cursor: pointer;
+      transition: all 0.25s;
+    }
+    #generate-btn:hover:not(:disabled) { background: var(--clay); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(181,133,106,0.28); }
+    #generate-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    #generate-btn .btn-hint { display: block; font-family: 'DM Sans', sans-serif; font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase; margin-top: 0.15rem; opacity: 0.65; }
+
+    /* ERROR */
+    #error-box {
+      display: none; background: #fff5f5; border: 1px solid #f5c6c6;
+      border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.5rem;
+      font-size: 0.84rem; color: var(--error); line-height: 1.55;
+    }
+
+    /* PROGRESS */
+    #progress-section { display: none; text-align: center; margin-bottom: 2rem; }
+    .spinner { width: 52px; height: 52px; border: 3px solid var(--warm); border-top-color: var(--clay); border-radius: 50%; animation: spin 0.85s linear infinite; margin: 0 auto 1rem; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #progress-msg { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-style: italic; color: var(--muted); }
+    #progress-dots::after { content: ''; animation: dots 1.5s steps(4,end) infinite; }
+    @keyframes dots { 0%{content:''} 25%{content:'.'} 50%{content:'..'} 75%{content:'...'} }
+
+    /* RESULT */
+    #result-section { display: none; animation: fadeIn 0.5s ease; }
+    .result-header { text-align: center; margin-bottom: 1.1rem; }
+    .result-header h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 300; }
+    .result-header p { font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-top: 0.2rem; }
+    .result-card { background: white; border-radius: 18px; overflow: hidden; box-shadow: 0 8px 40px rgba(28,23,18,0.08); margin-bottom: 1.2rem; }
+    #result-img { width: 100%; max-height: 580px; object-fit: contain; display: block; background: var(--cream); }
+    .result-actions { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+    .action-btn {
+      padding: 0.62rem 1.5rem; border-radius: 30px; font-size: 0.75rem;
+      letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer;
+      transition: all 0.2s; border: 1.5px solid; text-decoration: none; display: inline-block;
+    }
+    .action-btn.primary { background: var(--ink); border-color: var(--ink); color: white; }
+    .action-btn.primary:hover { background: var(--clay); border-color: var(--clay); }
+    .action-btn.secondary { background: transparent; border-color: var(--warm); color: var(--muted); }
+    .action-btn.secondary:hover { border-color: var(--clay); color: var(--clay); }
+
+    /* INSTRUCTIONS */
+    .instructions { margin-top: 2.5rem; border-top: 1px solid var(--warm); padding-top: 2rem; }
+    .instructions h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 400; color: var(--muted); margin-bottom: 1rem; }
+    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1rem; }
+    .step { background: white; border-radius: 12px; padding: 1rem 1.1rem; }
+    .step-num { font-family: 'Cormorant Garamond', serif; font-size: 2rem; color: var(--warm); line-height: 1; margin-bottom: 0.4rem; }
+    .step p { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+    .step p strong { color: var(--ink); font-weight: 500; }
+
+    /* GET KEY LINK */
+    .get-key-link { font-size: 0.72rem; color: var(--clay); text-decoration: none; white-space: nowrap; }
+    .get-key-link:hover { text-decoration: underline; }
+
+    @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+    footer { text-align: center; padding: 2rem; font-size: 0.68rem; color: var(--warm); letter-spacing: 0.1em; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>D<em>r</em>ape</h1>
+  <p>Virtual Shawl &amp; Stole Try-On</p>
+</header>
+
+<div id="api-banner">
+  <label>Replicate API Key</label>
+  <input id="api-key-input" type="password" placeholder="r8_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off" />
+  <button id="save-key-btn">Save</button>
+  <a href="https://replicate.com/account/api-tokens" target="_blank" class="get-key-link">Get a free key →</a>
+  <span id="key-status"></span>
+</div>
+
+<main>
+  <div class="upload-grid">
+
+    <div class="upload-panel" id="person-panel">
+      <input type="file" id="person-input" accept="image/jpeg,image/png,image/webp" />
+      <div class="panel-inner" id="person-placeholder">
+        <div class="panel-icon">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+          </svg>
+        </div>
+        <span class="panel-label">Your Photo</span>
+        <span class="panel-sub">Full or upper body photo</span>
+      </div>
+      <img id="person-preview" class="preview-img" style="display:none" alt="Your photo" />
+      <button class="panel-change" id="person-change" style="display:none" onclick="document.getElementById('person-input').click()">Change</button>
+    </div>
+
+    <div class="upload-panel" id="shawl-panel">
+      <input type="file" id="shawl-input" accept="image/jpeg,image/png,image/webp" />
+      <div class="panel-inner" id="shawl-placeholder">
+        <div class="panel-icon">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path d="M3 7l9-4 9 4v10l-9 4-9-4V7z"/><path d="M12 3v18M3 7l9 4 9-4"/>
+          </svg>
+        </div>
+        <span class="panel-label">Shawl / Stole</span>
+        <span class="panel-sub">Flat-lay or product image</span>
+      </div>
+      <img id="shawl-preview" class="preview-img" style="display:none" alt="Shawl photo" />
+      <button class="panel-change" id="shawl-change" style="display:none" onclick="document.getElementById('shawl-input').click()">Change</button>
+    </div>
+
+  </div>
+
+  <div class="category-row">
+    <label>Draping Style</label>
+    <div class="cat-pills">
+      <button class="cat-pill active" data-cat="upper_body">Shoulder / Upper Body</button>
+      <button class="cat-pill" data-cat="dresses">Full Length Drape</button>
+    </div>
+  </div>
+
+  <div class="generate-wrap">
+    <button id="generate-btn" disabled>
+      Try It On
+      <span class="btn-hint">AI-powered · ~25 seconds</span>
+    </button>
+  </div>
+
+  <div id="error-box"></div>
+
+  <div id="progress-section">
+    <div class="spinner"></div>
+    <p id="progress-msg">Draping your shawl<span id="progress-dots"></span></p>
+  </div>
+
+  <div id="result-section">
+    <div class="result-header">
+      <h2>Your Look</h2>
+      <p>AI-generated virtual try-on</p>
+    </div>
+    <div class="result-card">
+      <img id="result-img" alt="Try-on result" />
+    </div>
+    <div class="result-actions">
+      <a id="download-btn" class="action-btn primary" download="drape-result.jpg">⬇ Download</a>
+      <button class="action-btn secondary" id="try-again-btn">Try Another</button>
+    </div>
+  </div>
+
+  <div class="instructions">
+    <h3>How to use</h3>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <p>Paste your <strong>Replicate API key</strong> above. Free at replicate.com</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <p>Upload a clear <strong>photo of yourself</strong> — full body or upper body works best</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <p>Upload a <strong>flat-lay or product photo</strong> of the shawl or stole</p>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <p>Tap <strong>Try It On</strong> and wait about 25 seconds for your result</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>DRAPE &nbsp;·&nbsp; PERSONAL USE &nbsp;·&nbsp; POWERED BY IDM-VTON ON REPLICATE</footer>
+
+<script>
+  // ─── STATE ───────────────────────────────────────────────
+  let apiKey = localStorage.getItem('drape_api_key') || '';
+  let personFile = null, shawlFile = null;
+  let category = 'upper_body';
+
+  // ─── API KEY ──────────────────────────────────────────────
+  const apiInput  = document.getElementById('api-key-input');
+  const keyStatus = document.getElementById('key-status');
+
+  if (apiKey) { apiInput.value = apiKey; keyStatus.textContent = '✓ Key saved'; }
+
+  document.getElementById('save-key-btn').addEventListener('click', () => {
+    const val = apiInput.value.trim();
+    if (val && !val.startsWith('r8_')) {
+      keyStatus.textContent = 'Should start with r8_'; keyStatus.style.color = 'var(--error)'; return;
+    }
+    apiKey = val;
+    localStorage.setItem('drape_api_key', val);
+    keyStatus.textContent = val ? '✓ Key saved' : 'Cleared';
+    keyStatus.style.color = val ? 'var(--success)' : 'var(--muted)';
+    checkReady();
+  });
+
+  // ─── FILE UPLOAD HELPER ───────────────────────────────────
+  function setupUpload(inputId, previewId, placeholderId, changeId, setter) {
+    const input       = document.getElementById(inputId);
+    const preview     = document.getElementById(previewId);
+    const placeholder = document.getElementById(placeholderId);
+    const changeBtn   = document.getElementById(changeId);
+
+    function loadFile(file) {
+      if (!file) return;
+      setter(file);
+      const url = URL.createObjectURL(file);
+      preview.src = url;
+      preview.style.display = 'block';
+      placeholder.style.display = 'none';
+      changeBtn.style.display = 'block';
+      checkReady();
+    }
+
+    input.addEventListener('change', e => loadFile(e.target.files[0]));
+
+    // Drag & drop
+    const panel = input.closest('.upload-panel');
+    panel.addEventListener('dragover', e => { e.preventDefault(); panel.classList.add('drag-over'); });
+    panel.addEventListener('dragleave', () => panel.classList.remove('drag-over'));
+    panel.addEventListener('drop', e => {
+      e.preventDefault(); panel.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) loadFile(file);
+    });
+  }
+
+  setupUpload('person-input', 'person-preview', 'person-placeholder', 'person-change', f => personFile = f);
+  setupUpload('shawl-input',  'shawl-preview',  'shawl-placeholder',  'shawl-change',  f => shawlFile = f);
+
+  // ─── CATEGORY PILLS ───────────────────────────────────────
+  document.querySelectorAll('.cat-pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.cat-pill').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      category = btn.dataset.cat;
+    });
+  });
+
+  // ─── READY CHECK ─────────────────────────────────────────
+  function checkReady() {
+    const btn = document.getElementById('generate-btn');
+    btn.disabled = !(apiKey && personFile && shawlFile);
+  }
+
+  // ─── HELPERS ─────────────────────────────────────────────
+  function toBase64(file) {
+    return new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(r.result); // data URL
+      r.onerror = rej;
+      r.readAsDataURL(file);
+    });
+  }
+
+  function showError(msg) {
+    const box = document.getElementById('error-box');
+    box.textContent = msg;
+    box.style.display = 'block';
+  }
+
+  function hideError() {
+    document.getElementById('error-box').style.display = 'none';
+  }
+
+  function setProgress(show) {
+    document.getElementById('progress-section').style.display = show ? 'block' : 'none';
+  }
+
+  function showResult(url) {
+    const section = document.getElementById('result-section');
+    const img     = document.getElementById('result-img');
+    const dl      = document.getElementById('download-btn');
+    img.src = url;
+    dl.href = url;
+    section.style.display = 'block';
+    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ─── POLLING ─────────────────────────────────────────────
+  async function pollPrediction(predictionId) {
+    const maxAttempts = 60; // 60 × 3s = 3 min max
+    for (let i = 0; i < maxAttempts; i++) {
+      await new Promise(r => setTimeout(r, 3000));
+      const res = await fetch(`https://api.replicate.com/v1/predictions/${predictionId}`, {
+        headers: { 'Authorization': `Bearer ${apiKey}` }
+      });
+      if (!res.ok) throw new Error(`Polling error ${res.status}`);
+      const data = await res.json();
+
+      if (data.status === 'succeeded') {
+        // Output can be a string or array
+        const output = Array.isArray(data.output) ? data.output[0] : data.output;
+        return output;
+      }
+      if (data.status === 'failed' || data.status === 'canceled') {
+        throw new Error(data.error || 'Prediction failed. Try a clearer photo.');
+      }
+    }
+    throw new Error('Timed out. Please try again.');
+  }
+
+  // ─── GENERATE ────────────────────────────────────────────
+  document.getElementById('generate-btn').addEventListener('click', async () => {
+    if (!apiKey || !personFile || !shawlFile) return;
+
+    hideError();
+    setProgress(true);
+    document.getElementById('result-section').style.display = 'none';
+    document.getElementById('generate-btn').disabled = true;
+
+    try {
+      const [personB64, shawlB64] = await Promise.all([toBase64(personFile), toBase64(shawlFile)]);
+
+      // Create prediction using IDM-VTON on Replicate
+      const res = await fetch('https://api.replicate.com/v1/predictions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'wait'
+        },
+        body: JSON.stringify({
+          version: "c871bb9b046607b680449ecbae55fd8c6d945e0a1948644bf2361b3d021d3ff4",
+          input: {
+            human_img: personB64,
+            garm_img: shawlB64,
+            garment_des: "elegant shawl stole draped over shoulders",
+            category: category,
+            is_checked: true,
+            is_checked_crop: false,
+            denoise_steps: 30,
+            seed: Math.floor(Math.random() * 99999)
+          }
+        })
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        if (res.status === 401) throw new Error('Invalid API key. Please check and save your Replicate API key.');
+        throw new Error(err.detail || `API error ${res.status}`);
+      }
+
+      const prediction = await res.json();
+
+      // If already done (sync response with Prefer: wait)
+      if (prediction.status === 'succeeded') {
+        const output = Array.isArray(prediction.output) ? prediction.output[0] : prediction.output;
+        setProgress(false);
+        showResult(output);
+      } else {
+        // Poll for result
+        const outputUrl = await pollPrediction(prediction.id);
+        setProgress(false);
+        showResult(outputUrl);
+      }
+
+    } catch (err) {
+      setProgress(false);
+      showError('⚠ ' + err.message);
+    } finally {
+      checkReady(); // re-enable button
+    }
+  });
+
+  // ─── TRY AGAIN ───────────────────────────────────────────
+  document.getElementById('try-again-btn').addEventListener('click', () => {
+    document.getElementById('result-section').style.display = 'none';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+</script>
+</body>
+</html>
